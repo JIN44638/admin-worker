@@ -162,9 +162,24 @@
           </div>
         </div>
         <!-- 저장 버튼 -->
+        <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700 flex justify-end space-x-3">
+          <button
+            @click="closeModal"
+            class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
+          >
+            닫기
+          </button>
+          <button
+            @click="saveReservation"
+            class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+          >
+            저장
+          </button>
+        </div>
       </div>
     </div>
     <!-- 기사현황 -->
+     <Worker_dash/>
     <!-- 차트와 최근예약 -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- 차트 -->
@@ -200,6 +215,7 @@
 import Chart from "@/components/Chart.vue";
 import DashboardStats from "@/components/DashboardStats.vue";
 import SearchTable from "@/components/SearchTable.vue";
+import Worker_dash from "@/components/Worker_dash.vue";
 import { computed, ref } from "vue";
 const itemsPerPage = ref(5);
 // 선택된 예약 정보
@@ -410,6 +426,21 @@ window.handleReservationClick = (id) => {
   if (reservation) {
     showReserDetails(reservation);
   }
+};
+
+// 예약 정보 저장 함수
+const saveReservation = () => {
+  // 입력값 유효성 검사
+  if (!selectedReser.value.date) {
+    alert("예약일시는 필수 입력 항목입니다.");
+    return;
+  }
+  const index = reservations.value.findIndex((r) => r.id === selectedReser.value.id);
+  if (index !== -1) {
+    reservations.value[index] = { ...selectedReser.value };
+  }
+  // 모달 닫기
+  closeModal();
 };
 // 날짜 포맷 변경 함수
 const formatDate = (date) => {
