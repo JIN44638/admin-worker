@@ -9,6 +9,7 @@ import SettingsVue from "@/pages/admin/Settings.vue";
 import Worker_adminVue from "@/pages/admin/Worker_admin.vue";
 import CalendarVue from "@/pages/worker/Calendar.vue";
 import DashboardVue from "@/pages/worker/Dashboard.vue";
+import Detail from "@/pages/worker/Detail.vue";
 import JobsVue from "@/pages/worker/Jobs.vue";
 import LoginWorkerVue from "@/pages/worker/LoginWorker.vue";
 import PaymentVue from "@/pages/worker/Payment.vue";
@@ -46,6 +47,9 @@ const routes = [
       { path: "jobs", component: JobsVue, name: "MobileJobs" },
       { path: "calendar", component: CalendarVue, name: "MobileCalendar" },
       { path: "payment", component: PaymentVue, name: "MobilePayment" },
+      // router.push에서 query 받아와야해서 detail/:id? 형식으로 사용해야함(각각의 아이디를 받아야해서)
+      { path: "detail/:id?", component: Detail, name: "WorkerDetail" },
+
     ],
   },
 ];
