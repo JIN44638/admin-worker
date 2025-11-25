@@ -47,7 +47,8 @@
           <span>🗺️</span>
           <span class="text-white">길찾기</span>
         </a>
-        <button @click="changeJobStatus"
+        <button
+          @click="changeJobStatus"
           class="flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-50 text-blue-700 font-medium border border-blue-200 active:scale-[0.98] transition-transform"
         >
           <span>↻</span>
@@ -55,15 +56,100 @@
         </button>
       </div>
     </div>
+    <!-- 청소 사진 업로드 -->
+    <div v-if="job" class="bg-white border border-gray-200 p-4">
+      <div class="flex items-center justify-between mb-3">
+        <p class="font-semibold">📷 청소 완료 사진</p>
+        <span class="text-xs text-gray-500">{{ photos.length }}장</span>
+      </div>
+      <!-- 사진 그리드 영역 -->
+      <div class="grid grid-cols-3 gap-2 mb-3">
+        <div
+          v-for="(photo, index) in photos"
+          :key="index"
+          class="aspect-square rounded-lg overflow-hidden border-2 border-blue-200 relative"
+        >
+          <img :src="photo" alt="청소사진" class="w-full h-full object-cover" />
+          <button
+            @click="removePhoto(index)"
+            class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+          >
+            ✕
+          </button>
+        </div>
+        <!-- 사진 9개까지만 업로드 -->
+        <label
+          v-if="photos.length < 9"
+          class="aspect-square rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-50 active:scale-[0.98] transition-transform"
+        >
+          <!-- file 타입은 input 클릭시 사진 선택하는 창 뜸/ 파일선택하면 change 하겠다 -->
+          <input type="file" accept="image/*" capture="environment" multiple class="hidden" @change="onFilesSelected" />
+          <div class="text-center">
+            <span class="text-2xl block mb-1">📸</span>
+            <span class="text-xs text-gray-500">추가</span>
+          </div>
+        </label>
+      </div>
+      <p class="text-xs text-gray-500">작업 완료 후 사진을 촬영해주세요 (최대 9장)</p>
+    </div>
+    <!-- 고객 서명 -->
+    <div v-if="job" class="bg-white border border-gray-200 p-4">
+      <div class="flex items-center justify-between mb-3">
+        <p class="font-semibold">✍️ 고객 확인 서명</p>
+        <button v-if="signature" @click="clearSignature" class="text-xs text-red-600">삭제</button>
+      </div>
+      <!-- 서명 캔버스 -->
+      <div class="border-2 border-dashed border-gray-300 rounded-lg p-2 mb-3">
+        <!-- @mousedown   마우스로 꾹 누르기 시작할 때 → 그림 시작
+            @mousemove   마우스를 움직일 때 → 선이 따라 그려짐
+            @mouseup   마우스에서 손을 뗄 때 → 그리기 끝
+            @mouseleave   캔버스 밖으로 나갔을 때 → 그리기 끝
+            @touchstart   손가락으로 탭할 때 → 그림 시작
+            @touchmove   손가락을 움직이면 → 선이 그려짐
+            @touchend   손가락을 떼면 → 끝   -->
+        <canvas
+          ref="canvasRef"
+          @mousedown="startDrawing"
+          @mousemove="draw"
+          @mouseup="stopDrawing"
+          @mouseleave="stopDrawing"
+          @touchstart="startDrawing"
+          @touchmove="draw"
+          @touchend="stopDrawing"
+          class="w-full bg-white rounded border"
+          style="touch-action: none"
+        ></canvas>
+      </div>
+      <p class="text-xs text-gray-500 text-center">작업 완료 확인을 위해 고객님께 서명을 받아주세요</p>
+    </div>
+    <!-- 작업완료 버튼 -->
+    <div v-if="job" class="space-y-3 pb-4">
+      <button
+        @click="submitWork"
+        :disabled="!canSubmit"
+        class="w-full py-4 bg-green-600 text-white rounded-xl font-semibold shadow-lg active:scale-[0.98] transition-transform disabled:bg-gray-300 disabled:cursor-not-allowed"
+      >
+        🎉 작업 완료 및 제출
+      </button>
+       <button
+        @click="saveDraft"
+        class="w-full py-3 bg-gray-100 text-gray-700 rounded-xl font-medium">
+        임시 저장
+      </button>
+    </div>
   </div>
 </template>
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { getJobById, updateJob } from "@/data/worker_jobs";
 
 // 라우터 쿼리 에서 jobId 가져와서 작업 데이터 로드 하겠다
 const job = ref(null);
+const signature = ref(null);
+const photos = ref([]);
+const canvasRef = ref(null);
+const isDrawing = ref(false);
 const route = useRoute();
 const router = useRouter();
 // jobId 변경 시 작업 데이터 로드
@@ -109,12 +195,110 @@ function getNextStatus(currentStatus) {
   const cIndex = statusOrder.indexOf(currentStatus);
   if (cIndex < statusOrder.length - 1) {
     const nextStatus = statusOrder[cIndex + 1];
-    return `→ ${statusText(nextStatus)}`
+    return `→ ${statusText(nextStatus)}`;
   }
 }
 //작업 상태 변경 함수
-function changeJobStatus(){
+function changeJobStatus() {
+  const statusOrder = ["scheduled", "onroute", "working", "done"];
+  const currentIndex = statusOrder.indexOf(job.value.status);
+  if (currentIndex < statusOrder.length - 1) {
+    const newStatus = statusOrder[currentIndex + 1];
+    job.value.status = newStatus;
+    // 공통 상태도 업데이트
+    updateJob(job.value.id, { status: newStatus });
+    alert(`작업 상태가 "${statusText(newStatus)}"로 변경 되었습니다.`);
+  }
+}
 
+// 사진 업로드
+function onFilesSelected(e) {
+  const files = Array.from(e.target.files || []);
+  const readers = files.map((file) => {
+    // console.log(file);
+
+    return new Promise((resolve) => {
+      // console.log(resolve);
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      // readAsDataURL() 파일을 DataURL형식으로 읽어오는 매서드
+      reader.readAsDataURL(file);
+    });
+  });
+  // Promise.all() 란 모든 Promise객체를 처리하는 매서드
+  Promise.all(readers).then((list) => {
+    photos.value = [...photos.value, ...list].slice(0, 9);
+  });
+}
+// 사진 삭제 기능
+function removePhoto(index) {
+  photos.value.splice(index, 1);
+}
+
+// 서명기능-시작
+function startDrawing(e) {
+  isDrawing.value = true;
+  const canvas = canvasRef.value;
+  const ctx = canvas.getContext("2d");
+  // (getBoundingClientRect - 요소의 뷰포트 좌표를 가져오는 매서드 - 사용자가 그리는것을 좌표로 불러오는것)
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+  const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+  // beginPath() 경로를 시작하는 매서드
+  ctx.beginPath();
+  // moveTo() 경로를 이동하는 매서드
+  ctx.moveTo(x, y);
+}
+// 서명 -움직임
+function draw(e) {
+  if (!isDrawing.value) return;
+  const canvas = canvasRef.value;
+  const ctx = canvas.getContext("2d");
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+  const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+  ctx.lineTo(x, y); //경로를 이동하는 매서드
+  ctx.stroke(); //경로를 그리는 매서드
+  signature.value = canvas.toDataURL(); //캔버스를 data URL 형식으로 변환하는 매서드
+}
+// 서명-멈추기
+function stopDrawing() {
+  isDrawing.value = false;
+  if (canvasRef.value) {
+    signature.value = canvasRef.value.toDataURL();
+  }
+}
+// 서명 삭제
+function clearSignature() {
+  const canvas = canvasRef.value;
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  signature.value = null;
+}
+// 사진과 서명 없으면 버튼 비활성화
+const canSubmit = computed(() => {
+  return photos.value.length > 0 && signature.value !== null;
+});
+function submitWork() {
+  if (!canSubmit.value) {
+    alert("청소 사진과 고객 서명이 필요 합니다.");
+    return;
+  }
+  if (!job.value) return;
+  // 작업완료 처리 및 공통 상태 업데이트
+  updateJob(job.value.id, {
+    status: "done",
+    photos: [...photos.value],
+  });
+  alert("작업이 완료 되었습니다. 정산 내역을 확인 할 수 있습니다.");
+  // 작업 목록으로 이동
+  router.push({ name: "MobileJobs" });
+}
+// 임시저장
+function saveDraft(){
+  alert("임시 저장 되었습니다.")
 }
 // 초기 로드 및 라우트 변경 감지
 onMounted(() => {
@@ -127,3 +311,9 @@ watch(
   }
 );
 </script>
+<style scoped>
+/* 서명란에 가면 마우스 십자모양으로 나옴 */
+canvas {
+  cursor: crosshair;
+}
+</style>
