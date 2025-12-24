@@ -11,7 +11,7 @@ export const workersData = [
     joinDate: "2024-01-15",
     lastActivity: "2024-04-10",
     area: "서울, 경기",
-    totalreser: "5건",
+    settlementRate: 80, type: "executive",
   },
   {
     id: "#C002",
@@ -24,7 +24,7 @@ export const workersData = [
     joinDate: "2024-01-20",
     lastActivity: "2024-04-09",
     area: "인천",
-    totalreser: "2건",
+    settlementRate: 75, type: "employee",
   },
   {
     id: "#C003",
@@ -37,7 +37,7 @@ export const workersData = [
     joinDate: "2024-01-25",
     lastActivity: "2024-03-15",
     area: "부산",
-    totalreser: "0건",
+    settlementRate: 70, type: "employee",
   },
   {
     id: "#C004",
@@ -50,7 +50,7 @@ export const workersData = [
     joinDate: "2024-02-01",
     lastActivity: "2024-04-11",
     area: "서울",
-    totalreser: "5건",
+    settlementRate: 85, type: "employee",
   },
   {
     id: "#C005",
@@ -63,7 +63,7 @@ export const workersData = [
     joinDate: "2024-02-05",
     lastActivity: "2024-04-08",
     area: "경기",
-    totalreser: "5건",
+    settlementRate: 80, type: "employee",
   },
   {
     id: "#C006",
@@ -76,7 +76,7 @@ export const workersData = [
     joinDate: "2024-02-10",
     lastActivity: "2024-04-07",
     area: "서울, 인천",
-    totalreser: "3건",
+    settlementRate: 75, type: "employee",
   },
   {
     id: "#C007",
@@ -89,7 +89,7 @@ export const workersData = [
     joinDate: "2024-02-15",
     lastActivity: "2024-04-06",
     area: "경기",
-    totalreser: "2건",
+    settlementRate: 80, type: "employee",
   },
   {
     id: "#C008",
@@ -102,7 +102,7 @@ export const workersData = [
     joinDate: "2024-02-20",
     lastActivity: "2024-04-05",
     area: "서울",
-    totalreser: "4건",
+    settlementRate: 85, type: "employee",
   },
   {
     id: "#C009",
@@ -115,7 +115,7 @@ export const workersData = [
     joinDate: "2024-02-25",
     lastActivity: "2024-03-20",
     area: "부산",
-    totalreser: "0건",
+    settlementRate: 70, type: "employee",
   },
   {
     id: "#C010",
@@ -128,7 +128,7 @@ export const workersData = [
     joinDate: "2024-03-01",
     lastActivity: "2024-04-04",
     area: "서울, 경기",
-    totalreser: "3건",
+    settlementRate: 85, type: "employee",
   },
   {
     id: "#C011",
@@ -141,7 +141,7 @@ export const workersData = [
     joinDate: "2024-03-05",
     lastActivity: "2024-04-03",
     area: "인천",
-    totalreser: "5건",
+    settlementRate: 80, type: "employee",
   },
   {
     id: "#C012",
@@ -154,7 +154,7 @@ export const workersData = [
     joinDate: "2024-03-10",
     lastActivity: "2024-04-02",
     area: "서울",
-    totalreser: "3건",
+    settlementRate: 75, type: "employee",
   },
   {
     id: "#C013",
@@ -167,7 +167,7 @@ export const workersData = [
     joinDate: "2024-03-15",
     lastActivity: "2024-03-25",
     area: "부산",
-    totalreser: "0건",
+    settlementRate: 70, type: "employee",   
   },
   {
     id: "#C014",
@@ -180,7 +180,7 @@ export const workersData = [
     joinDate: "2024-03-20",
     lastActivity: "2024-04-01",
     area: "서울, 경기",
-    totalreser: "6건",
+    settlementRate: 85, type: "employee",
   },
   {
     id: "#C015",
@@ -193,6 +193,7 @@ export const workersData = [
     joinDate: "2024-03-25",
     lastActivity: "2024-03-31",
     area: "인천",
-    totalreser: "5건",
+    settlementRate: 80, type: "employee",
   },
 ];
+

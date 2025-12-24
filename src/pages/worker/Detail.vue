@@ -131,16 +131,12 @@
       >
         🎉 작업 완료 및 제출
       </button>
-       <button
-        @click="saveDraft"
-        class="w-full py-3 bg-gray-100 text-gray-700 rounded-xl font-medium">
-        임시 저장
-      </button>
+      <button @click="saveDraft" class="w-full py-3 bg-gray-100 text-gray-700 rounded-xl font-medium">임시 저장</button>
     </div>
   </div>
 </template>
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { getJobById, updateJob } from "@/data/worker_jobs";
 
@@ -234,7 +230,25 @@ function onFilesSelected(e) {
 function removePhoto(index) {
   photos.value.splice(index, 1);
 }
-
+// 캔버스 초기화(마우스 포인트 위치 잡기, 기준점 설정함/안하면 위치가 안맞음)
+onMounted(() => {
+  nextTick(() => {
+    if (canvasRef.value) {
+      const canvas = canvasRef.value;
+      const ctx = canvas.getContext("2d");
+      canvas.width = 400;
+      canvas.height = 200;
+      // 초기 배경
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // 그리기 설정(굵기, 색상, 시작이 둥글게 설정)
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 3;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+    }
+  });
+});
 // 서명기능-시작
 function startDrawing(e) {
   isDrawing.value = true;
@@ -297,8 +311,8 @@ function submitWork() {
   router.push({ name: "MobileJobs" });
 }
 // 임시저장
-function saveDraft(){
-  alert("임시 저장 되었습니다.")
+function saveDraft() {
+  alert("임시 저장 되었습니다.");
 }
 // 초기 로드 및 라우트 변경 감지
 onMounted(() => {
